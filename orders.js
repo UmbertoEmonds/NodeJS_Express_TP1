@@ -28,4 +28,14 @@ router.post("/", (req, res) => {
     res.send(`Order d'id ${uuidv4()}`)
 })
 
+router.put("/:id", (req, res) => {
+    const id = req.params.id
+    res.send(`Order d'id ${id} mis à jour`)
+})
+
+router.delete("/:id", (req, res) => {
+    const id = req.params.id
+    res.send(`Order d'id ${id} supprimée`)
+})
+
 module.exports = router
