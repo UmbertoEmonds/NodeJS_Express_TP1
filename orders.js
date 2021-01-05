@@ -1,6 +1,16 @@
 var express = require("express")
 var router = express.Router()
 const { v4: uuidv4 } = require('uuid')
+const mongoose = require('mongoose')
+
+const orderSchema = mongoose.Schema({
+    description : {type: String, required: true},
+    imageUrl : {type: String, required: true},
+    userId : {type: String, required: true},
+    price : {type: Number, required: true}
+})
+
+let OrderModel = mongoose.model('order', orderSchema)
 
 //middleware
 router.use(function timestamp(req, res, next){
@@ -16,16 +26,39 @@ router.use(function test(req, res, next){
 })
 
 router.get("/", (req, res) => {
-    res.send("Voici la list des orders")
+
+    OrderModel.find(null, (err, values) => {
+        if (err) {
+            res.status(500).send("Une erreur interne s'est produite")
+        } else {
+            res.status(200).send(values)
+        }
+    })
 })
 
 router.get("/:id", (req, res) => {
-    const id = req.params.id
-    res.send(`Voici l'order d'id : ${id}`)
+    
+    let id = req.params.id
+
+    OrderModel.findById(id, (err, order) => {
+        if (err) {
+            res.status(500).send("Une erreur interne s'est produite")
+        } else {
+            res.status(200).send(order)
+        }
+    })
 })
 
 router.post("/", (req, res) => {
-    res.send(`Order d'id ${uuidv4()}`)
+    let newOrder = new OrderModel(req.body)
+
+    newOrder.save((err, result) => {
+        if (err) { 
+            res.status(500).send("Une erreur interne s'est produite")
+        } else {
+            res.status(201).send(`Order d'id ${result._id}`)
+        }
+    })
 })
 
 router.put("/:id", (req, res) => {
@@ -35,7 +68,15 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
     const id = req.params.id
-    res.send(`Order d'id ${id} supprimée`)
+
+    OrderModel.remove(id, (err, result) => {
+        if(err){
+            console.log(err)
+            res.status(500).send("Une erreur interne s'est produite")
+        } else {
+            res.status(204).send(`Order d'id ${result._id} supprimée`)
+        }
+    })
 })
 
-module.exports = router
+module.exports = router, OrderModel
