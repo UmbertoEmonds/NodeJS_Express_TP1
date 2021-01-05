@@ -63,18 +63,23 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
     const id = req.params.id
-    res.send(`Order d'id ${id} mis à jour`)
+    OrderModel.updateOne({_id: id}, {...req.body}, err => {
+        if(err) {
+            res.status(500).send("Une erreur s'est produite")
+        } else {
+            res.send(`Order d'id ${id} mis à jour`)
+        }
+    })
 })
 
 router.delete("/:id", (req, res) => {
     const id = req.params.id
 
-    OrderModel.remove(id, (err, result) => {
+    OrderModel.deleteOne({_id: id}, (err, result) => {
         if(err){
-            console.log(err)
             res.status(500).send("Une erreur interne s'est produite")
         } else {
-            res.status(204).send(`Order d'id ${result._id} supprimée`)
+            res.status(204).send(`Order d'id ${id} supprimée`)
         }
     })
 })
